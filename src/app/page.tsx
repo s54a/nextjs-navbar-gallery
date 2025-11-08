@@ -55,7 +55,7 @@ interface NavbarProps {
 // ============================================================================
 
 // Hook to detect scroll state
-const useScrollState = (threshold: number = 20) => {
+const useScrollState = (threshold = 20) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -181,7 +181,7 @@ const Navbar: React.FC<NavbarProps> = ({
   // Default configuration
   const {
     side = "right",
-    width = { base: "100vw", md: "80vw", lg: "50vw" },
+    width: _width = { base: "100vw", md: "80vw", lg: "50vw" },
     initialBg = "transparent",
     scrolledBg = "bg-white/95 shadow-md",
     scrollThreshold = 20,
@@ -213,10 +213,12 @@ const Navbar: React.FC<NavbarProps> = ({
   useLockBodyScroll(isOpen && disableBodyScrollOnOpen);
 
   // Focus trap (mobile only)
-  if (trapFocus) {
-    // cast menuRef to broader HTMLElement|null ref to satisfy the hook's param
-    useFocusTrap(isOpen, menuRef as React.RefObject<HTMLElement | null>);
-  }
+  // if (trapFocus) {
+  //   // cast menuRef to broader HTMLElement|null ref to satisfy the hook's param
+  //   useFocusTrap(isOpen, menuRef as React.RefObject<HTMLElement | null>);
+  // }
+
+  useFocusTrap(isOpen, menuRef as React.RefObject<HTMLElement | null>);
 
   // Detect reduced motion preference (guarded for SSR)
   const prefersReducedMotion =
@@ -224,6 +226,12 @@ const Navbar: React.FC<NavbarProps> = ({
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const duration = prefersReducedMotion ? 0 : animateDuration / 1000;
+
+  // Close menu handler
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+    setTimeout(() => buttonRef.current?.focus(), 100);
+  }, []);
 
   // Close menu on Escape
   useEffect(() => {
@@ -235,21 +243,15 @@ const Navbar: React.FC<NavbarProps> = ({
 
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [isOpen]);
+  }, [isOpen, closeMenu]);
 
   // Track current route
   useEffect(() => {
     if (typeof window !== "undefined") {
       // ensure we always set a string (fixes the string | undefined problem)
-      setCurrentRoute(window.location.hash || links[0]?.href || "");
+      setCurrentRoute(window.location.hash ?? links[0]?.href ?? "");
     }
   }, [links]);
-
-  // Close menu handler
-  const closeMenu = useCallback(() => {
-    setIsOpen(false);
-    setTimeout(() => buttonRef.current?.focus(), 100);
-  }, []);
 
   // Handle link click
   const handleLinkClick = (href: string) => {
