@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
@@ -303,6 +305,20 @@ const Navbar: React.FC<NavbarProps> = ({
   // Breakpoint classes
   const breakpointClass =
     mobileBreakpoint === "sm" ? "sm" : mobileBreakpoint === "lg" ? "lg" : "md";
+
+  const desktopNavClass =
+    mobileBreakpoint === "sm"
+      ? "hidden sm:block"
+      : mobileBreakpoint === "lg"
+        ? "hidden lg:block"
+        : /* default */ "hidden md:block";
+
+  const mobileButtonClass =
+    mobileBreakpoint === "sm"
+      ? "sm:hidden flex min-h-11 min-w-11 ..."
+      : mobileBreakpoint === "lg"
+        ? "lg:hidden flex min-h-11 min-w-11 ..."
+        : /* default */ "md:hidden flex min-h-11 min-w-11 ...";
 
   return (
     <>
