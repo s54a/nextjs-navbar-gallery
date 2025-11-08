@@ -102,7 +102,9 @@ const useScrollSpy = (sectionIds: string[], enabled: boolean) => {
       if (!element) return null;
 
       const observer = new IntersectionObserver(
-        ([entry]) => {
+        (entries) => {
+          const entry = entries[0];
+          if (!entry) return; // <-- guard against undefined entry
           if (entry.isIntersecting) {
             setActiveId(id);
           }
@@ -123,9 +125,10 @@ const useScrollSpy = (sectionIds: string[], enabled: boolean) => {
 };
 
 // Hook for focus trap (mobile menu only)
+// Accept a broad ref type and allow null current safely
 const useFocusTrap = (
   isOpen: boolean,
-  containerRef: React.RefObject<HTMLElement>,
+  containerRef: React.RefObject<HTMLElement | null>,
 ) => {
   useEffect(() => {
     if (!isOpen) return;
@@ -137,8 +140,8 @@ const useFocusTrap = (
       'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])',
     );
 
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    const firstElement = focusableElements[0] ?? null;
+    const lastElement = focusableElements[focusableElements.length - 1] ?? null;
 
     const handleTab = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
@@ -194,8 +197,8 @@ const Navbar: React.FC<NavbarProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [currentRoute, setCurrentRoute] = useState("");
   const isScrolled = useScrollState(scrollThreshold);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   // Get section IDs for scroll spy
   const sectionIds = links.map((link) => link.id);
@@ -209,10 +212,11 @@ const Navbar: React.FC<NavbarProps> = ({
 
   // Focus trap (mobile only)
   if (trapFocus) {
-    useFocusTrap(isOpen, menuRef);
+    // cast menuRef to broader HTMLElement|null ref to satisfy the hook's param
+    useFocusTrap(isOpen, menuRef as React.RefObject<HTMLElement | null>);
   }
 
-  // Detect reduced motion preference
+  // Detect reduced motion preference (guarded for SSR)
   const prefersReducedMotion =
     typeof window !== "undefined" &&
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -234,7 +238,8 @@ const Navbar: React.FC<NavbarProps> = ({
   // Track current route
   useEffect(() => {
     if (typeof window !== "undefined") {
-      setCurrentRoute(window.location.hash || links[0]?.href);
+      // ensure we always set a string (fixes the string | undefined problem)
+      setCurrentRoute(window.location.hash || links[0]?.href || "");
     }
   }, [links]);
 
