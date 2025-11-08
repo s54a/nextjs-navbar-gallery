@@ -302,10 +302,7 @@ const Navbar: React.FC<NavbarProps> = ({
   // Logo scale
   const currentLogoScale = isScrolled ? logoScale.scrolled : logoScale.initial;
 
-  // Breakpoint classes
-  const breakpointClass =
-    mobileBreakpoint === "sm" ? "sm" : mobileBreakpoint === "lg" ? "lg" : "md";
-
+  // ---------- NEW: explicit responsive classes (no runtime prefix composition) ----------
   const desktopNavClass =
     mobileBreakpoint === "sm"
       ? "hidden sm:block"
@@ -315,10 +312,11 @@ const Navbar: React.FC<NavbarProps> = ({
 
   const mobileButtonClass =
     mobileBreakpoint === "sm"
-      ? "sm:hidden flex min-h-11 min-w-11 ..."
+      ? "sm:hidden flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
       : mobileBreakpoint === "lg"
-        ? "lg:hidden flex min-h-11 min-w-11 ..."
-        : /* default */ "md:hidden flex min-h-11 min-w-11 ...";
+        ? "lg:hidden flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        : /* default */ "md:hidden flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none";
+  // -------------------------------------------------------------------------------------
 
   return (
     <>
@@ -345,10 +343,7 @@ const Navbar: React.FC<NavbarProps> = ({
           </motion.div>
 
           {/* Desktop Navigation - Hidden on mobile */}
-          <nav
-            className={`hidden ${breakpointClass}:block`}
-            aria-label="Desktop navigation"
-          >
+          <nav className={desktopNavClass} aria-label="Desktop navigation">
             <ul className="flex items-center gap-1">
               {links.map((link) => {
                 const isActive =
@@ -363,8 +358,8 @@ const Navbar: React.FC<NavbarProps> = ({
                       }}
                       className={`rounded-lg px-4 py-2 transition-colors focus:ring-2 focus:ring-blue-500 focus:outline-none ${
                         isActive
-                          ? "bg-blue-500 font-semibold text-white"
-                          : "text-gray-700 hover:bg-gray-100"
+                          ? "bg-sky-700 font-semibold text-white"
+                          : "text-gray-950 hover:bg-gray-100"
                       } `}
                       animate={{
                         paddingTop: isScrolled ? "0.5rem" : "0.75rem",
@@ -384,7 +379,7 @@ const Navbar: React.FC<NavbarProps> = ({
           <button
             ref={buttonRef}
             onClick={() => setIsOpen(true)}
-            className={`${breakpointClass}:hidden flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 hover:bg-gray-100 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+            className={mobileButtonClass}
             aria-expanded={isOpen}
             aria-controls="slide-menu"
             aria-label="Open navigation menu"
@@ -498,14 +493,14 @@ const NavbarExample: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar
         config={navConfig}
-        logo={<span className="text-2xl font-bold text-blue-600">MyBrand</span>}
+        logo={<span className="text-2xl font-bold text-sky-700">MyBrand</span>}
         links={navLinks}
       />
 
       {/* Page Content */}
       <section
         id="hero"
-        className="flex min-h-screen items-center justify-center bg-linear-to-br from-blue-500 to-purple-600"
+        className="to-amber-400-600 flex min-h-screen items-center justify-center bg-linear-to-tl from-blue-500"
       >
         <div className="px-4 text-center text-white">
           <h1 className="mb-4 text-5xl font-bold">Welcome</h1>
